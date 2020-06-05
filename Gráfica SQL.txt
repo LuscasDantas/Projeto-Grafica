@@ -1,0 +1,136 @@
+--BANCO DE DADOS GRÁFICA RÁPIDA--
+	
+--FUNCIONÁRIOS
+CREATE TABLE funcionarios (
+	codFunc		bigint not null,
+	CPF		bigint not null,
+	nome		varchar(100) not null,
+	salario		numeric(6,2) not null,
+	telFixo		varchar(10),
+	telCel		varchar(11) not null,
+	rua			varchar(50),
+	numero		integer,
+	bairro		varchar(50),
+	CEP			varchar(8) not null,
+	municipio		varchar(50),
+	constraint pk_funcionarios primary key (codFunc));
+	
+	--insert into funcionarios values (456123, '42159014701', 'Joao da Silva', '1200',
+									 -- '997845624', 'Sergipe', '4215', 'Centro',
+									 -- '15874448', 'Taboão da Serra');
+
+--LOGIN
+CREATE TABLE login (
+	codUsuario	bigint not null,
+	codFunc 	bigint not null,
+	login		varchar(40) not null,
+	senha		varchar(500) not null,
+	atividade   smallint not null,
+	constraint pk_login primary key (codUsuario),
+   	CONSTRAINT fk_login_funcionario FOREIGN Key (codFunc) references funcionarios);
+	
+	--insert into login values ('12345678', 456123, 'joaosilva', md5('Joao@123'), 1);
+
+--SERVIÇOS
+CREATE TABLE servicos (
+	codServico	bigint not null,
+	descricao	varchar(200),
+	preco		numeric(4,2),
+	constraint pk_servicos primary key (codServico));
+	
+	--insert into servicos values (1,'Fotocópia', 0.30);
+
+--CONSUMIDORES
+CREATE TABLE consumidores (
+	codConsumidor	bigint not null,
+	nome			varchar(60) not null,
+	telefone		varchar(10) not null,
+	rua				varchar(60),
+	numero			integer,
+	bairro			varchar(50),
+	municipio			varchar(50),
+	estado			varchar(30),
+    	tipo            char(1),
+	constraint pk_consumidores primary key (codConsumidor));
+	
+	--insert into consumidores values (123, 'escola', '1734215987','Amazonas', 4589,
+									--  'Jardim Eva', 'Votuporanga', 'São Paulo', 'j');
+	
+--FÍSICA
+CREATE TABLE fisica(
+	codConsumidor bigint not null,
+	CPF			  varchar(11) not null,
+    constraint pk_fisica primary key (codConsumidor),	
+	constraint fk_fisica_consumidores foreign key
+	(codConsumidor)	references consumidores);
+    
+	
+--JURÍDICA
+CREATE TABLE juridica(
+	codConsumidor	bigint not null,
+	CNPJ			varchar(11) not null,
+    constraint pk_juridica primary key (codConsumidor),	
+	constraint fk_juridica_consumidores foreign key
+	(codConsumidor)	references consumidores);
+	
+--ORDEM DE SERVIÇOS
+CREATE TABLE ordem_servico(
+	codOrdem		bigint not null,
+	codFunc			bigint not null,
+	codConsumidor	bigint not null,
+	valorTotal		numeric(7,2),
+	constraint pk_ordem_servico primary key (codOrdem),
+	constraint fk_ordem_servico_funcionarios foreign key 
+	(codFunc) references funcionarios,
+	constraint fk_ordem_servico_consumidor foreign key
+	(codConsumidor) references consumidores);
+	
+--DEPENDENTES
+CREATE TABLE dependentes(
+	codDepen	bigint not null,
+	codFunc		bigint not null,
+	nome		varchar(60) not null,
+	CPF			varchar(11),
+	constraint pk_dependentes primary key (codDepen, codFunc),
+	constraint fk_dependentes_funcionarios foreign key 
+	(codFunc) references funcionarios,
+    constraint un_dependentes_cpf unique(cpf));
+	
+--REQUISIÇÂO
+CREATE TABLE Requisicao(
+	codOrdem		bigint not null,
+	codServicos		bigint not null,
+	dia				date not null,
+	hora 			time not null,
+	quantidade 		integer not null,
+	valorUnit 		numeric(7,2) not null,
+	valorServico	numeric(7,2),
+	constraint pk_requisicao primary key(codOrdem, codServicos),
+	CONSTRAINT fk_codOrdem FOREIGN KEY(codOrdem) references ordem_servico,
+	CONSTRAINT fk_codServicos FOREIGN KEY(codServicos) references Servicos);
+
+	--insert into requisicao 
+    --values (2,2,'05/26/2020', '20:27', 4, 11, 44)
+	
+--REGIÃO--
+
+CREATE TABLE Regiao(
+	idRegiao SERIAL PRIMARY KEY,
+	Nome	 VARCHAR(50) NOT NULL);
+
+--ESTADO--
+
+CREATE TABLE Estado (
+    idEstado SERIAL PRIMARY KEY,
+    CodigoUf INTEGER      NOT NULL,
+    Nome     VARCHAR (50) NOT NULL,
+    Uf       CHAR 	 (2)  NOT NULL,
+    Regiao   INTEGER	  NOT NULL);
+
+--MUNICÍPIOS--
+
+CREATE TABLE Municipio (
+  IdMunicipio	SERIAL PRIMARY KEY,
+  CodigoMunicipio		INT NOT NULL,
+  Nome 	 		VARCHAR(255) NOT NULL,
+  Uf			CHAR(2) NOT NULL);
